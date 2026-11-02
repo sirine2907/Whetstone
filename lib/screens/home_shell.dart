@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/nav_provider.dart';
+import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'sharpen_screen.dart';
+import 'templates_screen.dart';
 
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key});
@@ -14,8 +16,8 @@ class HomeShell extends StatelessWidget {
 
     const screens = [
       SharpenScreen(),
-      Center(child: Text('Templates')),
-      Center(child: Text('History')),
+      TemplatesScreen(),
+      HistoryScreen(),
       SettingsScreen(),
     ];
 
