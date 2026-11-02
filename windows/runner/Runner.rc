@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.sirineayadi" "\0"
-            VALUE "FileDescription", "whetstone" "\0"
+            VALUE "FileDescription", "Whetstone" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "whetstone" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.sirineayadi. All rights reserved." "\0"
             VALUE "OriginalFilename", "whetstone.exe" "\0"
-            VALUE "ProductName", "whetstone" "\0"
+            VALUE "ProductName", "Whetstone" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
