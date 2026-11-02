@@ -14,6 +14,9 @@ const _examples = [
   'fix my flutter app crashing on startup',
 ];
 
+// Marks the result area so the screen can scroll to it on small phones.
+final _resultKey = GlobalKey();
+
 class SharpenScreen extends StatelessWidget {
   const SharpenScreen({super.key});
 
@@ -26,6 +29,7 @@ class SharpenScreen extends StatelessWidget {
     if (result != null) {
       history.add(result);
     }
+    _scrollToResult();
   }
 
   void _runOffline(BuildContext context) {
@@ -34,6 +38,17 @@ class SharpenScreen extends StatelessWidget {
     if (result != null) {
       context.read<HistoryProvider>().add(result);
     }
+    _scrollToResult();
+  }
+
+  // Waits for the next frame because the result isn't on screen until then.
+  void _scrollToResult() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final resultContext = _resultKey.currentContext;
+      if (resultContext != null) {
+        Scrollable.ensureVisible(resultContext, duration: const Duration(milliseconds: 300));
+      }
+    });
   }
 
   @override
@@ -115,25 +130,33 @@ class SharpenScreen extends StatelessWidget {
           style: theme.textTheme.bodySmall,
         ),
         const SizedBox(height: 20),
-        if (sharpen.errorMessage != null)
-          _ErrorBox(
-            message: sharpen.errorMessage!,
-            onUseOffline: () => _runOffline(context),
-          ),
-        if (sharpen.isLoading)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: sharpen.streamedText.isEmpty
-                  ? const LinearProgressIndicator()
-                  : Text(sharpen.streamedText, style: theme.textTheme.bodyMedium),
-            ),
-          ),
-        if (sharpen.result != null)
-          ResultCard(
-            result: sharpen.result!,
-            onSharpenAgain: () => sharpen.loadDraft(sharpen.result!.sharpened),
-          ),
+        Column(
+          key: _resultKey,
+          children: [
+            if (sharpen.errorMessage != null)
+              _ErrorBox(
+                message: sharpen.errorMessage!,
+                onUseOffline: () => _runOffline(context),
+              ),
+            if (sharpen.isLoading)
+              SizedBox(
+                width: double.infinity,
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: sharpen.streamedText.isEmpty
+                        ? const LinearProgressIndicator()
+                        : Text(sharpen.streamedText, style: theme.textTheme.bodyMedium),
+                  ),
+                ),
+              ),
+            if (sharpen.result != null)
+              ResultCard(
+                result: sharpen.result!,
+                onSharpenAgain: () => sharpen.loadDraft(sharpen.result!.sharpened),
+              ),
+          ],
+        ),
       ],
     );
   }

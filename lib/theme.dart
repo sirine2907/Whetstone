@@ -99,7 +99,8 @@ ThemeData buildTheme(Brightness brightness) {
       style: FilledButton.styleFrom(
         minimumSize: const Size(0, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+        // A style set here replaces the theme's one, so it needs the font too.
+        textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w600),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
@@ -109,10 +110,27 @@ ThemeData buildTheme(Brightness brightness) {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        foregroundColor: text,
+        selectedForegroundColor: colors.onSecondary,
+        selectedBackgroundColor: secondary,
+        side: BorderSide(color: line),
+        textStyle: const TextStyle(fontFamily: 'Inter', fontSize: 13.5, fontWeight: FontWeight.w500),
+      ),
+    ),
     chipTheme: ChipThemeData(
       side: BorderSide(color: line),
       backgroundColor: card,
-      labelStyle: TextStyle(fontSize: 13, color: text),
+      selectedColor: secondary,
+      showCheckmark: false,
+      labelStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontSize: 13,
+        color: WidgetStateColor.resolveWith((states) {
+          return states.contains(WidgetState.selected) ? colors.onSecondary : text;
+        }),
+      ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     ),
     navigationBarTheme: NavigationBarThemeData(
@@ -120,8 +138,11 @@ ThemeData buildTheme(Brightness brightness) {
       indicatorColor: accent.withValues(alpha: 0.18),
       surfaceTintColor: Colors.transparent,
       height: 66,
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        return IconThemeData(color: states.contains(WidgetState.selected) ? accent : textSoft);
+      }),
       labelTextStyle: WidgetStatePropertyAll(
-        TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: text),
+        TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500, color: text),
       ),
     ),
     dividerTheme: DividerThemeData(color: line, thickness: 1, space: 1),
