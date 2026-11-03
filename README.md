@@ -52,8 +52,8 @@ Without an API key, nothing leaves the device. With a key, your prompt is sent t
 ## Getting started
 
 ```bash
-git clone https://github.com/sirine2907/Whetstone.git
-cd Whetstone
+git clone https://github.com/sirine2907/-Whetstone.git
+cd -- -Whetstone
 flutter pub get
 flutter run
 ```
