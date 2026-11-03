@@ -2,6 +2,10 @@
 
 **Turn a rough idea into a sharp prompt.** Whetstone is a Flutter app for Android and Windows. Type a messy request and it rewrites it into a clear prompt you can paste into any AI assistant. It also shows you which parts your prompt is missing.
 
+<p align="center">
+  <img src="docs/demo.gif" width="300" alt="Demo: sharpening a prompt, filling a template, history and dark mode" />
+</p>
+
 ## Screenshots
 
 | Sharpen | Result | Templates |
@@ -82,6 +86,15 @@ The screenshots above come from golden tests that render each screen. To update 
 ```bash
 flutter test test/screenshots --update-goldens
 ```
+
+The demo GIF is recorded the same way, then the frames are joined with Pillow:
+
+```bash
+flutter test test/screenshots/demo_test.dart --update-goldens
+python tool/make_demo_gif.py
+```
+
+The demo runs in offline mode, so it shows offline drafts rather than Claude rewrites.
 
 ## License
 
