@@ -9,6 +9,7 @@ class SettingsProvider extends ChangeNotifier {
 
   static const _themeKey = 'theme_mode';
   static const _apiKeyKey = 'claude_api_key';
+  static const _welcomeKey = 'seen_welcome';
 
   // The API key is a secret, so it goes in the secure storage instead of
   // shared_preferences, which is just a plain file on disk.
@@ -16,6 +17,8 @@ class SettingsProvider extends ChangeNotifier {
 
   ThemeMode themeMode = ThemeMode.system;
   String? apiKey;
+  bool seenWelcome = false;
+  bool loaded = false; // false until the saved settings have been read
 
   bool get hasApiKey => apiKey != null && apiKey!.isNotEmpty;
 
@@ -25,8 +28,18 @@ class SettingsProvider extends ChangeNotifier {
     if (savedTheme != null) {
       themeMode = ThemeMode.values.byName(savedTheme);
     }
+    seenWelcome = prefs.getBool(_welcomeKey) ?? false;
     apiKey = await _secureStorage.read(key: _apiKeyKey);
+    loaded = true;
     notifyListeners();
+  }
+
+  // Called by the Get Started button so the welcome screen only shows once.
+  Future<void> finishWelcome() async {
+    seenWelcome = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_welcomeKey, true);
   }
 
   Future<void> setThemeMode(ThemeMode mode) async {
