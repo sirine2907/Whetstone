@@ -20,12 +20,13 @@ Future<void> openApp(
   WidgetTester tester, {
   Map<String, String> secure = const {},
   ClaudeService? claude,
+  bool seenWelcome = true,
 }) async {
   tester.view.physicalSize = const Size(600, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
 
-  SharedPreferences.setMockInitialValues({});
+  SharedPreferences.setMockInitialValues({'seen_welcome': seenWelcome});
   FlutterSecureStorage.setMockInitialValues(Map.of(secure));
   await tester.pumpWidget(WhetstoneApp(claudeService: claude));
   await settle(tester);
@@ -43,7 +44,10 @@ void main() {
     expect(find.textContaining('offline draft. Fill in'), findsOneWidget);
     expect(find.textContaining('a patient teacher'), findsOneWidget);
 
-    await tester.tap(find.text('History'));
+    // The result opens on its own screen, so go back to reach the tabs.
+    await tester.tap(find.byTooltip('Back'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('History'));
     await settle(tester);
     expect(find.text('explain recursion'), findsWidgets);
   });
@@ -98,7 +102,7 @@ void main() {
   testWidgets('a template fills in and goes to the Sharpen tab', (tester) async {
     await openApp(tester);
 
-    await tester.tap(find.text('Templates'));
+    await tester.tap(find.byTooltip('Templates'));
     await settle(tester);
     await tester.tap(find.widgetWithText(ChoiceChip, 'Study'));
     await settle(tester);
@@ -117,7 +121,7 @@ void main() {
   testWidgets('the dark setting changes the theme and is remembered', (tester) async {
     await openApp(tester);
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.byTooltip('Settings'));
     await settle(tester);
     await tester.tap(find.text('Dark'));
     await settle(tester);
@@ -126,5 +130,27 @@ void main() {
     expect(app.themeMode, ThemeMode.dark);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('theme_mode'), 'dark');
+  });
+
+  testWidgets('the welcome screen shows once, then the home screen', (tester) async {
+    await openApp(tester, seenWelcome: false);
+
+    expect(find.text('Get Started'), findsOneWidget);
+    await tester.tap(find.text('Get Started'));
+    await settle(tester);
+
+    expect(find.text('What should we sharpen today?'), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('seen_welcome'), isTrue);
+  });
+
+  testWidgets('sharpening with an empty box asks for text first', (tester) async {
+    await openApp(tester);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Sharpen'));
+    await tester.pump();
+
+    expect(find.text('Type a rough idea first'), findsOneWidget);
+    expect(find.text('Edit and sharpen again'), findsNothing);
   });
 }

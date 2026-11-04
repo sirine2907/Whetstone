@@ -33,13 +33,17 @@ void main() {
   setUpAll(loadFonts);
 
   testWidgets('demo', (tester) async {
-    await openApp(tester);
+    await openApp(tester, seenWelcome: false);
+    await frame();
+
+    await tester.tap(find.text('Get Started'));
+    await settle(tester);
     await frame();
 
     // Type a rough prompt and watch the meter.
     await typeSlowly(tester, 'help me write an email asking for a raise', [8, 22, 41]);
 
-    await tester.tap(find.text('Detailed'));
+    await tester.tap(find.text('Detailed').first); // the focus tile, not a Recent card
     await settle(tester);
     await frame();
 
@@ -48,10 +52,14 @@ void main() {
     await frame();
 
     // Fill in a template and send it to Sharpen.
-    await tester.tap(find.text('Templates'));
+    await tester.tap(find.byTooltip('Back'));
+    await settle(tester);
+    await tester.tap(find.byTooltip('Templates'));
     await settle(tester);
     await frame();
 
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Work'));
+    await settle(tester);
     await tester.tap(find.text('Weigh Two Options'));
     await settle(tester);
     await tester.enterText(find.byType(TextField).at(0), 'take the remote job');
@@ -66,17 +74,17 @@ void main() {
     await settle(tester);
     await frame();
 
-    await tester.tap(find.text('History'));
+    await tester.tap(find.byTooltip('History'));
     await settle(tester);
     await frame();
 
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.byTooltip('Settings'));
     await settle(tester);
     await tester.tap(find.text('Dark'));
     await settle(tester);
     await frame();
 
-    await tester.tap(find.text('Templates'));
+    await tester.tap(find.byTooltip('Templates'));
     await settle(tester);
     await frame();
   }, variant: windows, skip: !autoUpdateGoldenFiles); // only when recording

@@ -14,7 +14,7 @@ frames = [Image.open(path).convert("RGB") for path in paths]
 # Typing frames are quick, everything else stays up long enough to read.
 durations = []
 for index in range(len(frames)):
-    if 1 <= index <= 2:
+    if 2 <= index <= 3:
         durations.append(500)
     else:
         durations.append(1800)

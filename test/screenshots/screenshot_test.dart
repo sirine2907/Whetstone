@@ -15,10 +15,12 @@ import 'package:whetstone/models/sharpened_prompt.dart';
 
 // Without loading a real font the test renders every letter as a box.
 Future<void> loadFonts() async {
-  final inter = FontLoader('Inter')..addFont(rootBundle.load('assets/fonts/Inter.ttf'));
-  final fraunces = FontLoader('Fraunces')..addFont(rootBundle.load('assets/fonts/Fraunces.ttf'));
+  final figtree = FontLoader('Figtree');
+  for (final weight in ['Light', 'Regular', 'Medium', 'SemiBold']) {
+    figtree.addFont(rootBundle.load('assets/fonts/Figtree-$weight.ttf'));
+  }
   final icons = FontLoader('MaterialIcons')..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
-  await Future.wait([inter.load(), fraunces.load(), icons.load()]);
+  await Future.wait([figtree.load(), icons.load()]);
 }
 
 String savedPrompt(String id, String original, SharpenFocus focus, {bool starred = false}) {
@@ -42,7 +44,12 @@ final seededHistory = [
   savedPrompt('4', 'plan a one week launch for my side project', SharpenFocus.structured, starred: true),
 ];
 
-Future<void> openApp(WidgetTester tester, {bool darkMode = false, double height = 915}) async {
+Future<void> openApp(
+  WidgetTester tester, {
+  bool darkMode = false,
+  double height = 915,
+  bool seenWelcome = true,
+}) async {
   tester.view.physicalSize = Size(412, height);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -50,6 +57,7 @@ Future<void> openApp(WidgetTester tester, {bool darkMode = false, double height 
   SharedPreferences.setMockInitialValues({
     'history': seededHistory,
     'theme_mode': darkMode ? 'dark' : 'light',
+    'seen_welcome': seenWelcome,
   });
   FlutterSecureStorage.setMockInitialValues({});
 
@@ -68,7 +76,7 @@ Future<void> settle(WidgetTester tester) async {
 Future<void> sharpenExample(WidgetTester tester) async {
   await tester.enterText(find.byType(TextField).first, 'explain recursion');
   await tester.pump();
-  await tester.tap(find.text('Structured'));
+  await tester.tap(find.text('Structured').first);
   await settle(tester);
   await tester.tap(find.widgetWithText(FilledButton, 'Sharpen'));
   await settle(tester);
@@ -89,27 +97,34 @@ final windows = TargetPlatformVariant.only(TargetPlatform.windows);
 void main() {
   setUpAll(loadFonts);
 
-  testWidgets('sharpen screen', (tester) async {
+  testWidgets('welcome screen', (tester) async {
+    await openApp(tester, seenWelcome: false);
+    await takeScreenshot('01_welcome');
+  }, variant: windows);
+
+  testWidgets('home screen', (tester) async {
     await openApp(tester);
-    await takeScreenshot('01_sharpen');
+    await takeScreenshot('02_home');
   }, variant: windows);
 
   testWidgets('sharpened result', (tester) async {
     await openApp(tester, height: resultHeight);
     await sharpenExample(tester);
-    await takeScreenshot('02_result');
+    await takeScreenshot('03_result');
   }, variant: windows);
 
   testWidgets('templates screen', (tester) async {
     await openApp(tester);
-    await tester.tap(find.text('Templates'));
+    await tester.tap(find.byTooltip('Templates'));
     await settle(tester);
-    await takeScreenshot('03_templates');
+    await takeScreenshot('04_templates');
   }, variant: windows);
 
   testWidgets('template detail', (tester) async {
     await openApp(tester);
-    await tester.tap(find.text('Templates'));
+    await tester.tap(find.byTooltip('Templates'));
+    await settle(tester);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Work'));
     await settle(tester);
     await tester.tap(find.text('Weigh Two Options'));
     await settle(tester);
@@ -117,33 +132,31 @@ void main() {
     await tester.pump();
     await tester.enterText(find.byType(TextField).at(1), 'stay and ask for a promotion');
     await settle(tester);
-    await takeScreenshot('04_template_detail');
+    await takeScreenshot('05_template_detail');
   }, variant: windows);
 
   testWidgets('history screen', (tester) async {
     await openApp(tester);
-    await tester.tap(find.text('History'));
+    await tester.tap(find.byTooltip('History'));
     await settle(tester);
-    await takeScreenshot('05_history');
+    await takeScreenshot('06_history');
   }, variant: windows);
 
   testWidgets('settings screen', (tester) async {
     await openApp(tester);
-    await tester.tap(find.text('Settings'));
+    await tester.tap(find.byTooltip('Settings'));
     await settle(tester);
-    await takeScreenshot('06_settings');
+    await takeScreenshot('07_settings');
   }, variant: windows);
 
-  testWidgets('dark mode', (tester) async {
+  testWidgets('dark home', (tester) async {
+    await openApp(tester, darkMode: true);
+    await takeScreenshot('08_dark_home');
+  }, variant: windows);
+
+  testWidgets('dark result', (tester) async {
     await openApp(tester, darkMode: true, height: resultHeight);
     await sharpenExample(tester);
-    await takeScreenshot('07_dark_result');
-  }, variant: windows);
-
-  testWidgets('dark mode templates', (tester) async {
-    await openApp(tester, darkMode: true);
-    await tester.tap(find.text('Templates'));
-    await settle(tester);
-    await takeScreenshot('08_dark_templates');
+    await takeScreenshot('09_dark_result');
   }, variant: windows);
 }
