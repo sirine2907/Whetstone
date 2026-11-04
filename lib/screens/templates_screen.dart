@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../data/templates.dart';
 import '../models/prompt_template.dart';
+import '../widgets/glass.dart';
+import '../widgets/glossy_shapes.dart';
 import 'template_detail_screen.dart';
 
 class TemplatesScreen extends StatefulWidget {
@@ -32,15 +34,23 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
     final visible = _visibleTemplates;
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 110),
       children: [
-        Text('Start from\na template', style: theme.textTheme.headlineMedium),
-        const SizedBox(height: 16),
+        Text('Templates', style: theme.textTheme.headlineMedium),
+        const SizedBox(height: 4),
+        Text(
+          '${templates.length} ready made prompts with blanks to fill in',
+          style: theme.textTheme.bodySmall,
+        ),
+        const SizedBox(height: 18),
         TextField(
           onChanged: (value) => setState(() => _search = value),
           decoration: const InputDecoration(
             hintText: 'Search templates',
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(Icons.search_rounded),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -75,9 +85,9 @@ class _TemplatesScreenState extends State<TemplatesScreen> {
           itemCount: visible.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            mainAxisSpacing: 10,
-            crossAxisSpacing: 10,
-            mainAxisExtent: 150,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            mainAxisExtent: 168,
           ),
           itemBuilder: (context, index) => _TemplateCard(template: visible[index]),
         ),
@@ -95,43 +105,40 @@ class _TemplateCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => TemplateDetailScreen(template: template)),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
+    return GlassCard(
+      radius: 24,
+      padding: const EdgeInsets.all(16),
+      onTap: () {
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => TemplateDetailScreen(template: template)));
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Icon(template.icon, size: 22, color: theme.colorScheme.primary),
-                  const Spacer(),
-                  Text(template.category.label, style: theme.textTheme.labelMedium),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                template.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                template.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall,
-              ),
+              GlossyOrb(size: 40, child: Icon(template.icon, size: 19, color: Colors.white)),
+              const Spacer(),
+              Text(template.category.label, style: theme.textTheme.labelMedium),
             ],
           ),
-        ),
+          const Spacer(),
+          Text(
+            template.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500, height: 1.25),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            template.description,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }

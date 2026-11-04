@@ -3,14 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../models/sharpened_prompt.dart';
 import '../providers/history_provider.dart';
-import '../providers/nav_provider.dart';
-import '../providers/sharpen_provider.dart';
-
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-String formatDate(DateTime date) {
-  return '${date.day} ${_months[date.month - 1]} ${date.year}';
-}
+import '../widgets/prompt_tile.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -38,15 +31,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }).toList();
 
     return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 110),
       children: [
-        Text('Your prompts', style: theme.textTheme.headlineMedium),
-        const SizedBox(height: 16),
+        Text('History', style: theme.textTheme.headlineMedium),
+        const SizedBox(height: 4),
+        Text('${allItems.length} saved on this device', style: theme.textTheme.bodySmall),
+        const SizedBox(height: 18),
         TextField(
           onChanged: (value) => setState(() => _search = value),
           decoration: const InputDecoration(
             hintText: 'Search history',
-            prefixIcon: Icon(Icons.search),
+            prefixIcon: Padding(
+              padding: EdgeInsets.only(left: 8),
+              child: Icon(Icons.search_rounded),
+            ),
           ),
         ),
         const SizedBox(height: 12),
@@ -71,37 +69,27 @@ class _HistoryScreenState extends State<HistoryScreen> {
             padding: const EdgeInsets.symmetric(vertical: 48),
             child: Center(
               child: Text(
-                allItems.isEmpty
-                    ? 'Prompts you sharpen will show up here.'
-                    : 'Nothing matches.',
+                allItems.isEmpty ? 'Prompts you sharpen will show up here.' : 'Nothing matches.',
                 style: theme.textTheme.bodySmall,
               ),
             ),
           ),
-        for (final item in items) ...[
-          _HistoryTile(item: item),
-          const SizedBox(height: 10),
-        ],
+        for (final item in items) ...[_HistoryTile(item: item), const SizedBox(height: 10)],
       ],
     );
   }
 }
 
+// A prompt tile you can swipe away, with a star button on the right.
 class _HistoryTile extends StatelessWidget {
   const _HistoryTile({required this.item});
 
   final SharpenedPrompt item;
 
-  void _open(BuildContext context) {
-    context.read<SharpenProvider>().showSaved(item);
-    context.read<NavProvider>().goToSharpen();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final history = context.read<HistoryProvider>();
-    final source = item.usedClaude ? 'Claude' : 'Offline';
 
     return Dismissible(
       key: ValueKey(item.id),
@@ -110,44 +98,16 @@ class _HistoryTile extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        child: Icon(Icons.delete_outline, color: theme.colorScheme.error),
+        child: Icon(Icons.delete_outline_rounded, color: theme.colorScheme.error),
       ),
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => _open(context),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.original,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${item.focus.label} · $source · ${formatDate(item.createdAt)}',
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: item.starred ? 'Remove star' : 'Star',
-                  onPressed: () => history.toggleStar(item.id),
-                  icon: Icon(
-                    item.starred ? Icons.star_rounded : Icons.star_outline_rounded,
-                    color: item.starred ? theme.colorScheme.primary : null,
-                  ),
-                ),
-              ],
-            ),
+      child: PromptTile(
+        item: item,
+        trailing: IconButton(
+          tooltip: item.starred ? 'Remove star' : 'Star',
+          onPressed: () => history.toggleStar(item.id),
+          icon: Icon(
+            item.starred ? Icons.star_rounded : Icons.star_outline_rounded,
+            color: item.starred ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant,
           ),
         ),
       ),
