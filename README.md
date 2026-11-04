@@ -3,27 +3,35 @@
 **Turn a rough idea into a sharp prompt.** Whetstone is a Flutter app for Android and Windows. Type a messy request and it rewrites it into a clear prompt you can paste into any AI assistant. It also shows you which parts your prompt is missing.
 
 <p align="center">
-  <img src="docs/demo.gif" width="300" alt="Demo: sharpening a prompt, filling a template, history and dark mode" />
+  <img src="docs/demo.gif" width="300" alt="Demo: welcome screen, sharpening a prompt, filling a template, history and dark mode" />
 </p>
 
 ## Screenshots
 
-| Sharpen | Result | Templates |
+| Welcome | Home | Result |
 |:---:|:---:|:---:|
-| <img src="docs/screenshots/01_sharpen.png" width="240" /> | <img src="docs/screenshots/02_result.png" width="240" /> | <img src="docs/screenshots/03_templates.png" width="240" /> |
-| **Template detail** | **History** | **Settings** |
-| <img src="docs/screenshots/04_template_detail.png" width="240" /> | <img src="docs/screenshots/05_history.png" width="240" /> | <img src="docs/screenshots/06_settings.png" width="240" /> |
-| **Dark result** | **Dark templates** | |
-| <img src="docs/screenshots/07_dark_result.png" width="240" /> | <img src="docs/screenshots/08_dark_templates.png" width="240" /> | |
+| <img src="docs/screenshots/01_welcome.png" width="240" /> | <img src="docs/screenshots/02_home.png" width="240" /> | <img src="docs/screenshots/03_result.png" width="240" /> |
+| **Templates** | **Template detail** | **History** |
+| <img src="docs/screenshots/04_templates.png" width="240" /> | <img src="docs/screenshots/05_template_detail.png" width="240" /> | <img src="docs/screenshots/06_history.png" width="240" /> |
+| **Settings** | **Dark home** | **Dark result** |
+| <img src="docs/screenshots/07_settings.png" width="240" /> | <img src="docs/screenshots/08_dark_home.png" width="240" /> | <img src="docs/screenshots/09_dark_result.png" width="240" /> |
+
+## Design
+
+The look is "frosted lilac". Every screen sits on a lavender to pink gradient with two blurred color blobs behind it. Cards are see-through white glass (a `BackdropFilter` blur with a white tint), buttons are white pills, and the tab bar floats at the bottom as a glass pill with a round "new prompt" button next to it. The glossy balls and sparkles are drawn in code with radial gradients and a `CustomPainter`, so there are no image assets. Text is set in Figtree.
+
+Results open on their own screen as a short chat: your rough prompt on the right, the sharpened one on the left, and the before and after score drawn as a row of bars like a voice message.
 
 ## Features
 
 - **Prompt rewriting with Claude.** Add your own API key and the rewrite streams in as it is generated.
-- **Three focus modes.** Clear is short and direct, Detailed spells out depth and examples, and Structured uses labelled sections.
+- **Welcome screen** on the first launch, then straight to the home screen after that.
+- **Three focus modes**, picked from tiles on the home screen. Clear is short and direct, Detailed spells out depth and examples, and Structured uses labelled sections.
 - **Offline drafts.** With no key, the app wraps your prompt in a good structure and leaves `[brackets]` for you to fill in. If a Claude request fails, you can switch to a draft from the error message.
 - **Sharpness meter.** A live check for the five parts of a good prompt: role, task, context, format and limits.
 - **12 templates** across Writing, Code, Work and Study, with search, category filters and a live preview.
-- **History.** Every result is saved on the device, and you can search it, star items, swipe to delete, or tap to reopen one.
+- **History.** Every result is saved on the device, and you can search it, star items, swipe to delete, or tap to reopen one. The two newest also show on the home screen.
+- **Prompt tips.** The light bulb on the home screen explains the five parts the meter looks for.
 - **Light, dark and system themes.**
 
 ## How it works
@@ -67,9 +75,9 @@ lib/
   data/        the template list
   models/      SharpenedPrompt, PromptTemplate
   providers/   nav, settings, history and sharpen state
-  screens/     one file per screen
+  screens/     one file per screen, including welcome and result
   services/    ClaudeService, LocalSharpener, PromptChecker
-  widgets/     sharpness meter, result card
+  widgets/     glass card, background, glossy shapes, prompt tile, meter
   theme.dart   colors and the light and dark themes
 ```
 
@@ -98,4 +106,4 @@ The demo runs in offline mode, so it shows offline drafts rather than Claude rew
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The bundled Inter and Fraunces fonts are under the SIL Open Font License, included in [assets/fonts](assets/fonts).
+MIT, see [LICENSE](LICENSE). The bundled Figtree font is under the SIL Open Font License, included in [assets/fonts](assets/fonts).
